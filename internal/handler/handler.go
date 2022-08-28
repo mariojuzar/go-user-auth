@@ -25,7 +25,10 @@ func NewHttpHandler(cfg *config.MainConfig, db *mongo.Database) MainHandlerHttp 
 	server := &httpServer{
 		db:  db,
 		cfg: *cfg,
-		api: controller.NewAPI(fiber.New(), db, cfg),
+		api: controller.NewAPI(fiber.New(fiber.Config{
+			ReadTimeout:  cfg.ApiConfig.ReadTimeout,
+			WriteTimeout: cfg.ApiConfig.WriteTimeout,
+		}), db, cfg),
 	}
 	return server
 }
