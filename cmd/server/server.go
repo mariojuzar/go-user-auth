@@ -1,7 +1,10 @@
 package server
 
 import (
+	"context"
 	"github.com/mariojuzar/go-user-auth/internal/config"
+	"github.com/mariojuzar/go-user-auth/internal/handler"
+	"github.com/mariojuzar/go-user-auth/internal/infrastructures/mongodb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -16,7 +19,11 @@ func ServeHttp() *cobra.Command {
 				logrus.WithError(err).Fatalf("Config error: %v", cfg)
 			}
 
-			logrus.Infoln("Server called")
+			mongoDb := mongodb.MongoDbConn(context.Background(), *cfg)
+
+			if err := handler.NewHttpHandler(cfg, mongoDb).Start(); err != nil {
+				logrus.WithError(err).Fatalf("Error starting API")
+			}
 		},
 	}
 }

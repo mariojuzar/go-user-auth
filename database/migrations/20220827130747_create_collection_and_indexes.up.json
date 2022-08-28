@@ -1,0 +1,36 @@
+[
+  {
+  "createIndexes": "users",
+  "indexes": [
+    {
+      "key": {
+        "username": 1
+      },
+      "name": "unique_username",
+      "unique": true,
+      "background": true
+    }
+  ]
+  },
+  {
+    "createIndexes": "role_permission",
+    "indexes": [
+      {
+        "key": {
+          "role": 1,
+          "permission": 1
+        },
+        "name": "unique_role_permission",
+        "unique": true,
+        "background": true
+      },
+      {
+        "key": {
+          "role": 1
+        },
+        "name": "role",
+        "background": true
+      }
+    ]
+  }
+]
