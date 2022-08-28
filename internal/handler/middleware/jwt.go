@@ -71,7 +71,7 @@ func (i *interceptor) Auth(h fiber.Handler) fiber.Handler {
 }
 
 func (i *interceptor) validatePermission(ctx *fiber.Ctx, jwtData model.JwtData) error {
-	if jwtData.Role == "superadmin" {
+	if jwtData.Role == model.SuperAdmin {
 		return nil
 	}
 
