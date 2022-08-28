@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mariojuzar/go-user-auth/internal/handler/request"
 	"github.com/mariojuzar/go-user-auth/internal/handler/response"
-	"github.com/mariojuzar/go-user-auth/pkg/custerr"
+	"net/http"
 )
 
 // LoginUser godoc
@@ -20,16 +20,16 @@ func (a *API) LoginUser(ctx *fiber.Ctx) error {
 	var req request.LoginRequest
 	err := ctx.BodyParser(&req)
 	if err != nil {
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 400,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusBadRequest,
 		}
 	}
 	result, err := a.authUc.Login(ctx.Context(), req)
 	if err != nil {
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 400,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusBadRequest,
 		}
 	}
 
@@ -51,17 +51,17 @@ func (a *API) RefreshToken(ctx *fiber.Ctx) error {
 	var req request.RefreshTokenRequest
 	err := ctx.BodyParser(&req)
 	if err != nil {
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 400,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusBadRequest,
 		}
 	}
 
 	result, err := a.authUc.RefreshToken(ctx.Context(), req)
 	if err != nil {
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 400,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusBadRequest,
 		}
 	}
 

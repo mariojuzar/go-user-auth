@@ -2,16 +2,16 @@ package user
 
 import (
 	"context"
-	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"github.com/mariojuzar/go-user-auth/internal/domain/model"
 	"github.com/mariojuzar/go-user-auth/internal/handler/request"
 	"github.com/mariojuzar/go-user-auth/internal/handler/response"
 	"github.com/mariojuzar/go-user-auth/internal/interfaces/dao"
 	"github.com/mariojuzar/go-user-auth/pkg/constant"
-	"github.com/mariojuzar/go-user-auth/pkg/custerr"
 	"github.com/mariojuzar/go-user-auth/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 	"time"
 )
 
@@ -19,14 +19,14 @@ func (m *Module) FindById(ctx context.Context, userId primitive.ObjectID) (*resp
 	user, err := m.userRepo.FindById(ctx, userId)
 	if err != nil {
 		if err == dao.ErrNotFound {
-			return nil, &custerr.CustomError{
-				Err:     err,
-				ErrCode: 404,
+			return nil, &fiber.Error{
+				Message: err.Error(),
+				Code:    http.StatusBadRequest,
 			}
 		}
-		return nil, &custerr.CustomError{
-			Err:     err,
-			ErrCode: 500,
+		return nil, &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
 		}
 	}
 	return &response.UserResponse{
@@ -42,22 +42,22 @@ func (m *Module) DeleteById(ctx context.Context, userId primitive.ObjectID) erro
 	user, err := m.userRepo.FindById(ctx, userId)
 	if err != nil {
 		if err == dao.ErrNotFound {
-			return &custerr.CustomError{
-				Err:     err,
-				ErrCode: 404,
+			return &fiber.Error{
+				Message: err.Error(),
+				Code:    http.StatusBadRequest,
 			}
 		}
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 500,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
 		}
 	}
 
 	err = m.userRepo.Delete(ctx, user.ID)
 	if err != nil {
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 500,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
 		}
 	}
 	return nil
@@ -71,17 +71,17 @@ func (m *Module) CreateUser(ctx context.Context, req request.UserCreateRequest) 
 
 	role := model.UserRoles[req.Role]
 	if role == constant.EmptyString {
-		return &custerr.CustomError{
-			Err:     fmt.Errorf("invalid role"),
-			ErrCode: 400,
+		return &fiber.Error{
+			Message: "invalid role",
+			Code:    http.StatusBadRequest,
 		}
 	}
 
 	rolePermission, err := m.rolePermissionRepo.GetPermissionByRole(ctx, req.Role)
 	if err != nil {
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 500,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
 		}
 	}
 
@@ -102,9 +102,9 @@ func (m *Module) CreateUser(ctx context.Context, req request.UserCreateRequest) 
 
 	err = m.userRepo.Create(ctx, user)
 	if err != nil {
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 500,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
 		}
 	}
 	return nil
@@ -113,9 +113,9 @@ func (m *Module) CreateUser(ctx context.Context, req request.UserCreateRequest) 
 func (m *Module) FindAll(ctx context.Context, page int, size int) ([]response.UserResponse, error) {
 	res, err := m.userRepo.FindAll(ctx, page, size)
 	if err != nil {
-		return nil, &custerr.CustomError{
-			Err:     err,
-			ErrCode: 500,
+		return nil, &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
 		}
 	}
 
@@ -136,14 +136,14 @@ func (m *Module) Update(ctx context.Context, req request.UserUpdateRequest) erro
 	user, err := m.userRepo.FindById(ctx, req.UserId)
 	if err != nil {
 		if err == dao.ErrNotFound {
-			return &custerr.CustomError{
-				Err:     err,
-				ErrCode: 404,
+			return &fiber.Error{
+				Message: err.Error(),
+				Code:    http.StatusBadRequest,
 			}
 		}
-		return &custerr.CustomError{
-			Err:     err,
-			ErrCode: 500,
+		return &fiber.Error{
+			Message: err.Error(),
+			Code:    http.StatusInternalServerError,
 		}
 	}
 
@@ -155,15 +155,15 @@ func (m *Module) Update(ctx context.Context, req request.UserUpdateRequest) erro
 	if req.Username != constant.EmptyString {
 		usernameCheck, err := m.userRepo.FindByUsername(ctx, req.Username)
 		if err != nil && err != dao.ErrNotFound {
-			return &custerr.CustomError{
-				Err:     err,
-				ErrCode: 500,
+			return &fiber.Error{
+				Message: err.Error(),
+				Code:    http.StatusInternalServerError,
 			}
 		}
 		if usernameCheck != nil {
-			return &custerr.CustomError{
-				Err:     fmt.Errorf("username already in use"),
-				ErrCode: 404,
+			return &fiber.Error{
+				Message: "username already in use",
+				Code:    http.StatusBadRequest,
 			}
 		}
 		userUpdate.Username = req.Username
@@ -172,17 +172,17 @@ func (m *Module) Update(ctx context.Context, req request.UserUpdateRequest) erro
 	if req.Role != constant.EmptyString && string(user.Role) != req.Role {
 		role := model.UserRoles[req.Role]
 		if role == constant.EmptyString {
-			return &custerr.CustomError{
-				Err:     fmt.Errorf("invalid role"),
-				ErrCode: 400,
+			return &fiber.Error{
+				Message: "invalid role",
+				Code:    http.StatusBadRequest,
 			}
 		}
 
 		permission, err := m.rolePermissionRepo.GetPermissionByRole(ctx, req.Role)
 		if err != nil {
-			return &custerr.CustomError{
-				Err:     err,
-				ErrCode: 500,
+			return &fiber.Error{
+				Message: err.Error(),
+				Code:    http.StatusInternalServerError,
 			}
 		}
 

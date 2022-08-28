@@ -7,7 +7,6 @@ import (
 	"github.com/mariojuzar/go-user-auth/internal/domain/model"
 	"github.com/mariojuzar/go-user-auth/internal/handler/response"
 	"github.com/mariojuzar/go-user-auth/pkg/constant"
-	"github.com/mariojuzar/go-user-auth/pkg/custerr"
 	"github.com/mariojuzar/go-user-auth/pkg/utils"
 	"net/http"
 	"strings"
@@ -35,9 +34,9 @@ func (i *interceptor) Auth(h fiber.Handler) fiber.Handler {
 		var claims model.JwtClaim
 		token, err := jwt.ParseWithClaims(bearerToken, &claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, &custerr.CustomError{
-					Err:     fmt.Errorf("invalid refresh token"),
-					ErrCode: http.StatusBadRequest,
+				return nil, &fiber.Error{
+					Code:    http.StatusBadRequest,
+					Message: "invalid refresh token",
 				}
 			}
 

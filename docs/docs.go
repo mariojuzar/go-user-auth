@@ -239,43 +239,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/:user_id": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "DeleteUser",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "DeleteUser",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "user id",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/users/me": {
             "get": {
                 "security": [
@@ -316,7 +279,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/user/:user_id": {
+        "/v1/users/user/{user_id}": {
             "get": {
                 "security": [
                     {
@@ -360,6 +323,43 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{user_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "DeleteUser",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "DeleteUser",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse"
                         }
                     }
                 }
@@ -462,6 +462,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 },
                 "username": {
